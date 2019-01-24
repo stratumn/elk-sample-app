@@ -11,12 +11,12 @@ class State {
 export class Users extends PureComponent<{}, State> {
   readonly state = new State();
 
-  componentDidMount() {
+  componentDidMount = () => {
     // TODO: fetch from service
     this.setState({
       users: ['alice', 'bob']
     });
-  }
+  };
 
   openUserModal = () => {
     this.setState({
@@ -41,6 +41,7 @@ export class Users extends PureComponent<{}, State> {
     const users = Object.assign([], this.state.users);
     users.push(this.state.modalUserName);
 
+    // TODO: send to the service
     this.setState({
       modalIsOpen: false,
       modalUserName: '',
@@ -48,7 +49,7 @@ export class Users extends PureComponent<{}, State> {
     });
   };
 
-  render() {
+  render = () => {
     const { users } = this.state;
 
     return (
@@ -105,5 +106,5 @@ export class Users extends PureComponent<{}, State> {
         </Modal>
       </div>
     );
-  }
+  };
 }

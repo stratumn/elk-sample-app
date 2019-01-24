@@ -15,7 +15,7 @@ interface RouterProps {
 }
 
 class App extends Component<RouteComponentProps<RouterProps>> {
-  render() {
+  render = () => {
     const routerProps = matchPath<RouterProps>(this.props.location.pathname, {
       path: '/:user'
     });
@@ -43,7 +43,7 @@ class App extends Component<RouteComponentProps<RouterProps>> {
         </div>
       </div>
     );
-  }
+  };
 }
 
 export default withRouter(App);
