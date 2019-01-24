@@ -3,9 +3,19 @@ import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 
 class State {
-  readonly users: string[] = [];
+  readonly users: User[] = [];
   readonly modalIsOpen: boolean = false;
   readonly modalUserName: string = '';
+}
+
+class User {
+  readonly id: string;
+  readonly name: string;
+
+  constructor(id: string, name: string) {
+    this.id = id;
+    this.name = name;
+  }
 }
 
 export class Users extends PureComponent<{}, State> {
@@ -14,7 +24,7 @@ export class Users extends PureComponent<{}, State> {
   componentDidMount = () => {
     // TODO: fetch from service
     this.setState({
-      users: ['alice', 'bob']
+      users: [new User('1', 'alice'), new User('2', 'bob')]
     });
   };
 
@@ -39,7 +49,7 @@ export class Users extends PureComponent<{}, State> {
 
   addUser = () => {
     const users = Object.assign([], this.state.users);
-    users.push(this.state.modalUserName);
+    users.push(new User('3', this.state.modalUserName));
 
     // TODO: send to the service
     this.setState({
@@ -55,17 +65,17 @@ export class Users extends PureComponent<{}, State> {
     return (
       <div>
         <ul style={{ listStyleType: 'none', textAlign: 'left' }}>
-          {users.map((user: string) => (
-            <li key={user}>
+          {users.map((user: User) => (
+            <li key={user.id}>
               <Link
-                to={`/${user}`}
+                to={`/${user.id}`}
                 style={{
                   color: 'white',
                   textDecoration: 'none',
                   margin: '20px'
                 }}
               >
-                {user}
+                {user.name}
               </Link>
             </li>
           ))}
