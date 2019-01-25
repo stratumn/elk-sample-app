@@ -1,20 +1,10 @@
 import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 
+import { Task, TaskClient } from './clients/task';
+
 interface Props {
   user: string;
-}
-
-class Task {
-  readonly id: string;
-  readonly name: string;
-  readonly done: boolean;
-
-  constructor(id: string, name: string, done: boolean) {
-    this.id = id;
-    this.name = name;
-    this.done = done;
-  }
 }
 
 class State {
@@ -27,44 +17,68 @@ export class TodoList extends PureComponent<Props, State> {
   readonly state = new State();
 
   componentDidMount = () => {
-    // TODO: fetch from service
-    this.setState({
-      tasks: [
-        new Task('1', 'Do the laundry', false),
-        new Task('2', 'Do the dishes', true)
-      ]
-    });
+    const { user } = this.props;
+    const taskClient = new TaskClient();
+    taskClient
+      .getTasks(user)
+      .then((tasks: Task[]) => {
+        console.info(`${tasks.length} tasks found`);
+        this.setState({
+          tasks
+        });
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   componentDidUpdate = (prevProps: Props) => {
     // If we're switching to a different user, load that user's state.
     if (prevProps.user !== this.props.user) {
-      // TODO: fetch from service
-      this.setState({
-        modalIsOpen: false,
-        modalTaskName: '',
-        tasks: [
-          new Task('1', 'Do the laundry', false),
-          new Task('2', 'Do the dishes', true)
-        ]
-      });
+      const taskClient = new TaskClient();
+      taskClient
+        .getTasks(this.props.user)
+        .then((tasks: Task[]) => {
+          console.info(`${tasks.length} tasks found`);
+          this.setState({
+            tasks
+          });
+        })
+        .catch(e => {
+          console.error(e);
+        });
     }
   };
 
   changeTaskStatus = (id: string) => {
-    const tasks: Task[] = [];
-    for (const task of this.state.tasks) {
-      if (task.id === id) {
-        tasks.push(new Task(task.id, task.name, !task.done));
-      } else {
-        tasks.push(new Task(task.id, task.name, task.done));
-      }
+    const taskClient = new TaskClient();
+    const task = this.state.tasks.find((t: Task) => t.id === id);
+    if (!task) {
+      console.error(`task ${id} not found in current list`);
+      return;
     }
 
-    // TODO: send request to service
-    this.setState({
-      tasks
-    });
+    taskClient
+      .updateTask(this.props.user, new Task(task.id, task.name, !task.done))
+      .then((task: Task) => {
+        console.info(`task ${task.id} successfully updated`);
+
+        const tasks: Task[] = [];
+        for (const t of this.state.tasks) {
+          if (t.id === task.id) {
+            tasks.push(task);
+          } else {
+            tasks.push(t);
+          }
+        }
+
+        this.setState({
+          tasks
+        });
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   openTaskModal = () => {
@@ -87,15 +101,23 @@ export class TodoList extends PureComponent<Props, State> {
   };
 
   addTask = () => {
-    const tasks = Object.assign([], this.state.tasks);
-    tasks.push(new Task('42', this.state.modalTaskName, false));
+    const taskClient = new TaskClient();
+    taskClient
+      .createTask(this.props.user, this.state.modalTaskName)
+      .then((task: Task) => {
+        console.info(`task ${task.id} created`);
+        const tasks = Object.assign([], this.state.tasks);
+        tasks.push(task);
 
-    // TODO: send to the service
-    this.setState({
-      modalIsOpen: false,
-      modalTaskName: '',
-      tasks
-    });
+        this.setState({
+          modalIsOpen: false,
+          modalTaskName: '',
+          tasks
+        });
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   render = () => {

@@ -2,30 +2,30 @@ import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 
+import { User, UserClient } from './clients/user';
+
 class State {
   readonly users: User[] = [];
   readonly modalIsOpen: boolean = false;
   readonly modalUserName: string = '';
 }
 
-class User {
-  readonly id: string;
-  readonly name: string;
-
-  constructor(id: string, name: string) {
-    this.id = id;
-    this.name = name;
-  }
-}
-
 export class Users extends PureComponent<{}, State> {
   readonly state = new State();
 
   componentDidMount = () => {
-    // TODO: fetch from service
-    this.setState({
-      users: [new User('1', 'alice'), new User('2', 'bob')]
-    });
+    const userClient = new UserClient();
+    userClient
+      .getUsers()
+      .then((users: User[]) => {
+        console.info(`${users.length} users found`);
+        this.setState({
+          users
+        });
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   openUserModal = () => {
@@ -48,15 +48,23 @@ export class Users extends PureComponent<{}, State> {
   };
 
   addUser = () => {
-    const users = Object.assign([], this.state.users);
-    users.push(new User('3', this.state.modalUserName));
+    const userClient = new UserClient();
+    userClient
+      .createUser(this.state.modalUserName)
+      .then((user: User) => {
+        console.info(`user ${user.name} created`);
+        const users = Object.assign([], this.state.users);
+        users.push(user);
 
-    // TODO: send to the service
-    this.setState({
-      modalIsOpen: false,
-      modalUserName: '',
-      users
-    });
+        this.setState({
+          modalIsOpen: false,
+          modalUserName: '',
+          users
+        });
+      })
+      .catch(e => {
+        console.error(e);
+      });
   };
 
   render = () => {
