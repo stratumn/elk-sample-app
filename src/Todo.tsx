@@ -52,7 +52,7 @@ export class TodoList extends PureComponent<Props, State> {
 
   changeTaskStatus = (id: string) => {
     const taskClient = new TaskClient();
-    const task = this.state.tasks.find((t: Task) => t.id === id);
+    const task = this.state.tasks.find((t: Task) => t.id === parseInt(id));
     if (!task) {
       console.error(`task ${id} not found in current list`);
       return;
@@ -130,7 +130,7 @@ export class TodoList extends PureComponent<Props, State> {
               <label>
                 <input
                   type="checkbox"
-                  id={task.id}
+                  id={task.id.toString()}
                   checked={task.done}
                   onChange={e => this.changeTaskStatus(e.target.id)}
                 />

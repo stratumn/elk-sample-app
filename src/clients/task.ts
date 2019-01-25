@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 export class Task {
-  readonly id: string;
+  readonly id: number;
   readonly name: string;
   readonly done: boolean;
 
-  constructor(id: string, name: string, done: boolean) {
+  constructor(id: number, name: string, done: boolean) {
     this.id = id;
     this.name = name;
     this.done = done;

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 export class User {
-  readonly id: string;
+  readonly id: number;
   readonly name: string;
 
-  constructor(id: string, name: string) {
+  constructor(id: number, name: string) {
     this.id = id;
     this.name = name;
   }
