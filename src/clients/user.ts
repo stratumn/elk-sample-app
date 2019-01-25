@@ -15,7 +15,7 @@ export class UserClient {
 
   getUsers = async (): Promise<User[]> => {
     const response = await axios.get<User[]>(`${this.endpoint}/users`);
-    return response.data;
+    return response.data || [];
   };
 
   getUser = async (id: string): Promise<User> => {

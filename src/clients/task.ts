@@ -19,7 +19,7 @@ export class TaskClient {
     const response = await axios.get<Task[]>(
       `${this.endpoint}/user/${userId}/tasks`
     );
-    return response.data;
+    return response.data || [];
   };
 
   createTask = async (userId: string, name: string): Promise<Task> => {
