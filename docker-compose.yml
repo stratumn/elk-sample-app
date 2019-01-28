@@ -36,6 +36,7 @@ services:
     labels:
       - co.elastic.logs/module=postgresql
       - co.elastic.logs/fileset=access
+      - co.elastic.metrics/module=postgresql
     restart: always
 
   ##### Monitoring #####
@@ -54,7 +55,7 @@ services:
       - ./ops/config/kibana/:/usr/share/kibana/config:ro
     depends_on:
       - elasticsearch
-  # TODO: how will that work for containers on ECS?
+  # TODO: how will the docker beats work for containers on ECS?
   # And for Postgres instances managed by RDS?
   filebeat:
     image: docker.elastic.co/beats/filebeat:6.5.4
@@ -63,8 +64,17 @@ services:
       - ./ops/config/beats/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
     depends_on:
       - elasticsearch
-  # TODO: metricbeat
-  # TODO: heartbeat
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:6.5.4
+    user: root
+    volumes:
+      - ./ops/config/beats/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - elasticsearch
   # TODO: APM
