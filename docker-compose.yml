@@ -1,0 +1,31 @@
+version: '3'
+services:
+  user-frontend:
+    image: stratumn/elk-js-user:latest
+    ports:
+      - '3001:80'
+    environment:
+      - PORT=80
+      - USER_SVC=http://user-backend
+  task-frontend:
+    image: stratumn/elk-js-task:latest
+    ports:
+      - '3002:80'
+    environment:
+      - PORT=80
+      - TASK_SVC=http://task-backend
+  user-backend:
+    image: stratumn/elk-go-user:latest
+    environment:
+      - PORT=80
+      - DB_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+  task-backend:
+    image: stratumn/elk-go-task:latest
+    environment:
+      - PORT=80
+      - DB_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+  postgres:
+    image: postgres:11
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    restart: always
