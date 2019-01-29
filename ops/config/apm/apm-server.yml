@@ -1,0 +1,53 @@
+apm-server:
+  host: '0.0.0.0:8200'
+  concurrent_requests: 10
+  rum:
+    enabled: true
+
+queue.mem.events: 4096
+
+max_procs: 4
+
+output.elasticsearch:
+  enabled: true
+  hosts: ['http://elasticsearch:9200']
+  # index: 'apm-server-%{[beat.version]}-%{+yyyy.MM.dd}'
+  # By using the configuration below, apm documents are stored to separate indices,
+  # depending on their `processor.event`:
+  # - error
+  # - transaction
+  # - span
+  # - sourcemap
+  #
+  # The indices are all prefixed with `apm-%{[beat.version]}`.
+  # To allow managing indices based on their age, all indices (except for sourcemaps)
+  # end with the information of the day they got indexed.
+  # e.g. "apm-6.3.0-transaction-2018.03.20"
+  #
+  # Be aware that you can only specify one Elasticsearch template.
+  # In case you modify the index patterns you must also update those configurations accordingly,
+  # as they need to be aligned:
+  # * `setup.template.name`
+  # * `setup.template.pattern`
+  # indices:
+  #   - index: 'apm-%{[observer.version]}-sourcemap'
+  #     when.contains:
+  #       processor.event: 'sourcemap'
+  #   - index: 'apm-%{[observer.version]}-error-%{+yyyy.MM.dd}'
+  #     when.contains:
+  #       processor.event: 'error'
+  #   - index: 'apm-%{[observer.version]}-transaction-%{+yyyy.MM.dd}'
+  #     when.contains:
+  #       processor.event: 'transaction'
+  #   - index: 'apm-%{[observer.version]}-span-%{+yyyy.MM.dd}'
+  #     when.contains:
+  #       processor.event: 'span'
+  #   - index: 'apm-%{[observer.version]}-metric-%{+yyyy.MM.dd}'
+  #     when.contains:
+  #       processor.event: 'metric'
+  #   - index: 'apm-%{[observer.version]}-onboarding-%{+yyyy.MM.dd}'
+  #     when.contains:
+  #       processor.event: 'onboarding'
+
+setup.kibana:
+  host: 'kibana:5601'

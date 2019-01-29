@@ -8,6 +8,8 @@ services:
     environment:
       - PORT=80
       - USER_SVC=http://user-backend
+      - ELASTIC_APM_SERVICE_NAME=user-frontend
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
   task-frontend:
     image: stratumn/elk-js-task:latest
     ports:
@@ -15,6 +17,8 @@ services:
     environment:
       - PORT=80
       - TASK_SVC=http://task-backend
+      - ELASTIC_APM_SERVICE_NAME=task-frontend
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
 
   ##### Backend Services #####
   user-backend:
@@ -22,11 +26,15 @@ services:
     environment:
       - PORT=80
       - DB_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+      - ELASTIC_APM_SERVICE_NAME=user-backend
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
   task-backend:
     image: stratumn/elk-go-task:latest
     environment:
       - PORT=80
       - DB_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+      - ELASTIC_APM_SERVICE_NAME=task-backend
+      - ELASTIC_APM_SERVER_URL=http://apm-server:8200
 
   ##### Application Database #####
   postgres:
@@ -77,4 +85,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - elasticsearch
-  # TODO: APM
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:6.5.4
+    user: root
+    volumes:
+      - ./ops/config/apm/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
+    depends_on:
+      - elasticsearch
