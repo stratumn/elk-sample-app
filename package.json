@@ -10,6 +10,7 @@
     "@types/react-modal": "^3.8.0",
     "@types/react-router-dom": "^4.3.1",
     "axios": "^0.18.0",
+    "elastic-apm-js-base": "^2.2.0",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-modal": "^3.8.1",
