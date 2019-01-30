@@ -6,6 +6,8 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import App from './App';
 
+console.info(`APM agent enabled: ${apm.isEnabled()}`);
+
 Modal.setAppElement('#root');
 
 ReactDOM.render(

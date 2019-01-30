@@ -88,6 +88,8 @@ services:
   apm-server:
     image: docker.elastic.co/apm/apm-server:6.5.4
     user: root
+    ports:
+      - '8200:8200'
     volumes:
       - ./ops/config/apm/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
     depends_on:

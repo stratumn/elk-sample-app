@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 
+import apm from './apm';
 import { Task, TaskClient } from './clients/task';
 
 interface Props {
@@ -17,35 +18,52 @@ export class TodoList extends PureComponent<Props, State> {
   readonly state = new State();
 
   componentDidMount = () => {
+    const tx = apm.startTransaction('Load Tasks', 'app.load');
+
     const { user } = this.props;
+    apm.setUserContext({ id: user });
+
     const taskClient = new TaskClient();
     taskClient
       .getTasks(user)
       .then((tasks: Task[]) => {
         console.info(`${tasks.length} tasks found`);
+        apm.setTags({ taskCount: tasks.length });
+
         this.setState({
           tasks
         });
       })
       .catch(e => {
         console.error(e);
+      })
+      .finally(() => {
+        tx.end();
       });
   };
 
   componentDidUpdate = (prevProps: Props) => {
     // If we're switching to a different user, load that user's state.
     if (prevProps.user !== this.props.user) {
+      const tx = apm.startTransaction('Load Tasks', 'app.load');
+      apm.setUserContext({ id: this.props.user });
+
       const taskClient = new TaskClient();
       taskClient
         .getTasks(this.props.user)
         .then((tasks: Task[]) => {
           console.info(`${tasks.length} tasks found`);
+          apm.setTags({ taskCount: tasks.length });
+
           this.setState({
             tasks
           });
         })
         .catch(e => {
           console.error(e);
+        })
+        .finally(() => {
+          tx.end();
         });
     }
   };
@@ -101,11 +119,16 @@ export class TodoList extends PureComponent<Props, State> {
   };
 
   addTask = () => {
+    const tx = apm.startTransaction('Add Task', 'app.click');
+    apm.setUserContext({ id: this.props.user });
+
     const taskClient = new TaskClient();
     taskClient
       .createTask(this.props.user, this.state.modalTaskName)
       .then((task: Task) => {
         console.info(`task ${task.id} created`);
+        apm.setTags({ taskId: task.id });
+
         const tasks = Object.assign([], this.state.tasks);
         tasks.push(task);
 
@@ -117,6 +140,9 @@ export class TodoList extends PureComponent<Props, State> {
       })
       .catch(e => {
         console.error(e);
+      })
+      .finally(() => {
+        tx.end();
       });
   };
 

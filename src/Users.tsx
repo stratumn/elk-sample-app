@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router-dom';
 
+import apm from './apm';
 import { User, UserClient } from './clients/user';
 
 class State {
@@ -14,17 +15,24 @@ export class Users extends PureComponent<{}, State> {
   readonly state = new State();
 
   componentDidMount = () => {
+    const tx = apm.startTransaction('Load Users', 'app.init');
+
     const userClient = new UserClient();
     userClient
       .getUsers()
       .then((users: User[]) => {
         console.info(`${users.length} users found`);
+        apm.setTags({ userCount: users.length });
+
         this.setState({
           users
         });
       })
       .catch(e => {
         console.error(e);
+      })
+      .finally(() => {
+        tx.end();
       });
   };
 
@@ -48,6 +56,9 @@ export class Users extends PureComponent<{}, State> {
   };
 
   addUser = () => {
+    const tx = apm.startTransaction('Add User', 'app.click');
+    apm.setTags({ name: this.state.modalUserName });
+
     const userClient = new UserClient();
     userClient
       .createUser(this.state.modalUserName)
@@ -64,6 +75,9 @@ export class Users extends PureComponent<{}, State> {
       })
       .catch(e => {
         console.error(e);
+      })
+      .finally(() => {
+        tx.end();
       });
   };
 
